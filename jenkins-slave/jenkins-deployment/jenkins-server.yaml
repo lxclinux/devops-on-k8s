@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: jenkins-server
+  name: jenkins-server
+  namespace: kube-ops
+spec:
+  selector:
+    matchLabels:
+      app: jenkins-server
+  template:
+    metadata:
+      labels:
+        app: jenkins-server
+    spec:
+      containers:
+        - env:
+            - name: JAVA_OPTS
+              value: >-
+                -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -Xmx8192m
+                -Xms8192m
+          image: '172.20.48.53/devops/jenkins-server:2.249.3-lts-centos7'
+          imagePullPolicy: IfNotPresent
+          lifecycle: {}
+          name: jenkins
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 50000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: '100m'
+              memory: "2Gi"
+            limits:
+              cpu: "1000m"
+              memory: "6Gi"
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            failureThreshold: 12
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            failureThreshold: 12
+          volumeMounts:
+            - mountPath: /var/jenkins_home
+              name: jenkins-home
+      dnsConfig: {}
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: harbor-admin
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        seLinuxOptions: {}
+      serviceAccount: jenkins
+      serviceAccountName: jenkins
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: jenkins-home
+        persistentVolumeClaim:
+          claimName: jenkins-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: jenkins-server
+  name: jenkins-server
+  namespace: kube-ops
+spec:
+  ports:
+    - name: 4rsdj8
+      nodePort: 30000
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: ydas4j
+      nodePort: 30001
+      port: 50000
+      protocol: TCP
+      targetPort: 50000
+  selector:
+    app: jenkins-server
+  sessionAffinity: None
+  type: NodePort

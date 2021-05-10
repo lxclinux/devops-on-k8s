@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJodHRwOi8vMTcyLjIwLjQ4LjUzIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6IlBAc3N3MHJkIiwiYXV0aCI6IllXUnRhVzQ2VUVCemMzY3djbVE9In19fQ==
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: harbor-admin
+  namespace: kube-ops
+type: kubernetes.io/dockerconfigjson
